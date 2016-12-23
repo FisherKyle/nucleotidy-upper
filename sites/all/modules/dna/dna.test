@@ -1,0 +1,80 @@
+<?php
+
+
+class dnaUnitTests extends DrupalUnitTestCase
+{
+    public static function getInfo() {
+        return array(
+            // Name your tests.
+            'name' => 'DNA Unit Test',
+            // Describe the point of these tests.
+            'description' => 'Evaluates nucleotides for their corresponding values through the render dna function',
+            // Assign these tests to a group, just like the "package" in the module's info page puts your modules into a group.
+            'group' => 'Advanced Drupal Tests',
+        );
+    }
+
+    // Unit tests
+    function testRenderHelix() {
+      //ARRANGE:
+      $results_message = 'single letter success';
+      $user_input= 'a';
+      //ACT:
+      $full_dna = renderHelix($user_input);
+      //ASSERT:
+      $expected_result = 'A//T';
+      $this->assertEqual($full_dna, $expected_result, $results_message);
+
+      //ARRANGE:
+      $results_message = 'double letter success';
+      $user_input= 'tt';
+      //ACT:
+      $full_dna = renderHelix($user_input);
+      //ASSERT:
+      $expected_result = 'T T//A A';
+      $this->assertEqual($full_dna, $expected_result, $results_message);
+
+      //ARRANGE:
+      $results_message = 'multiple letter success';
+      $user_input= 'ATG';
+      //ACT:
+      $full_dna = renderHelix($user_input);
+      //ASSERT:
+      $expected_result = 'A T G//T A C';
+      $this->assertEqual($full_dna, $expected_result, $results_message);
+    }
+ }
+
+//=====================FUNCTIONAL TESTING=================//
+//========================================================//
+
+class DnaUserTests extends DrupalWebTestCase {
+
+    public static function getInfo() {
+        return array(
+            'name' => 'DNA Functional Tests',
+            'description' => "Dna custom module front end functional tests.",
+            'group' => 'Advanced Drupal Tests',
+        );
+    }
+
+    public function setUp() {
+       parent::setUp(array('dna'));
+    }
+
+    public function testForValidInput() {
+      $info = array();
+      $info['dna_input'] = "T";
+      $this->drupalPost('dna', $info, t('Submit'));
+      $this->assertText('A', "good job, you typed a t. lucky.");
+    }
+
+    public function testForInvalidInput() {
+      $info = array();
+      $info['dna_input'] = "x";
+      $this->drupalPost('dna', $info, t('Submit'));
+      $this->assertText("[hint]: The DNA sequence contains only A, C, T, and G.", 'bad job');
+    }
+
+
+}

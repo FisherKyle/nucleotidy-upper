@@ -1,0 +1,5 @@
+name = Ajax Node Loader
+description = use ajax to in-page render links
+package = Epicodus Examples
+core = 7.x
+files[] = ajax.module

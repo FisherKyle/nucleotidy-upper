@@ -1,0 +1,7 @@
+iname = DNA AJAX Node Loader
+description = A module that renders the corresponding DNA to a user's input sequence.
+package = Advanced Drupal Tests
+core = 7.x
+files[] = dna.module
+files[] = dna.test
+dependencies[] = simpletest

@@ -1,0 +1,92 @@
+<?php
+
+function dna_menu() {
+    $items = array();
+    $items['dna'] = array(
+        'title' => 'DNA Form',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('dna_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM
+    );
+    $items['dna_result'] = array(
+        'title' => 'Success',
+        'page callback' => 'dna_success',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK
+    );
+    return $items;
+}
+
+function dna_form() {
+    $form['dna_input'] = array(
+      '#title' => 'DNA Input',
+      '#type' => 'textfield',
+      '#description' => t('enter a DNA sequence'),
+      '#element_validate' => array('element_validate_nucleotide'),
+      '#required' => TRUE
+    );
+
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Submit'
+    );
+
+    return $form;
+}
+
+/*-------------------Validation-------------------*/
+
+function element_validate_nucleotide($element) {
+    $passing_input = array("a", "A", "c", "C", "g", "G", "t", "T");
+
+    $user_input = str_split($element['#value']);
+    foreach($user_input as $nucleotide) {
+        if(!in_array($nucleotide, $passing_input)) {
+            form_error($element, t("[hint]: The DNA sequence contains only A, C, T, and G."));
+        }
+    }
+}
+
+/*-------------------Calculation-------------------*/
+
+function dna_form_submit($form, &$form_state) {
+
+    $user_input = $form_state['values']['dna_input'];
+    $result = renderHelix($user_input);
+
+    $_SESSION['result'] = $result;
+    $form_state['redirect'] = "dna_result";
+
+}
+
+function renderHelix($input) {
+    $input = str_split(strtoupper($input));
+    $returned_array = array();
+
+    for ($i = 0; $i < count($input); $i++) {
+        if ($input[$i] === "A") {
+            array_push($returned_array, "T");
+        }
+        elseif ($input[$i] === "T") {
+            array_push($returned_array, "A");
+        }
+        elseif ($input[$i] === "G") {
+            array_push($returned_array, "C");
+        }
+        elseif ($input[$i] === "C") {
+            array_push($returned_array, "G");
+        }
+    }
+    $final_input = implode(" ", $input);
+    $output = implode(" ", $returned_array);
+
+    return $final_input . "//" . $output;
+}
+
+/*-------------------Success Redirect-------------------*/
+
+function dna_success() {
+    $double_helix = $_SESSION['result'];
+    return "<p>" . $double_helix . "</p>";
+}
